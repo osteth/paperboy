@@ -94,7 +94,7 @@ def apply_theme(root: tk.Tk) -> None:
     )
     style.configure("TLabelframe.Label",
         background=C["base"],
-        foreground=C["subtext0"],
+        foreground=C["subtext1"],
         font=("Helvetica", 9, "bold"),
     )
 
@@ -107,6 +107,7 @@ def apply_theme(root: tk.Tk) -> None:
     )
     style.map("TButton",
         background=[("active", C["surface1"]), ("pressed", C["surface2"])],
+        foreground=[("active", C["text"]), ("pressed", C["text"])],
         bordercolor=[("active", C["overlay0"])],
     )
 
@@ -119,6 +120,7 @@ def apply_theme(root: tk.Tk) -> None:
     )
     style.map("Accent.TButton",
         background=[("active", C["subtext1"]), ("pressed", C["overlay1"])],
+        foreground=[("active", C["crust"]), ("pressed", C["crust"])],
     )
 
     style.configure("TEntry",
@@ -156,6 +158,19 @@ def apply_theme(root: tk.Tk) -> None:
     style.map("TCheckbutton",
         indicatorcolor=[("selected", C["blue"]), ("active", C["surface1"])],
         background=[("active", C["base"])],
+        foreground=[("active", C["text"])],
+    )
+
+    style.configure("TRadiobutton",
+        background=C["base"],
+        foreground=C["text"],
+        focuscolor=C["base"],
+        indicatorcolor=C["surface0"],
+    )
+    style.map("TRadiobutton",
+        indicatorcolor=[("selected", C["blue"]), ("active", C["surface1"])],
+        background=[("active", C["base"])],
+        foreground=[("active", C["text"])],
     )
 
     style.configure("Treeview",
@@ -167,7 +182,7 @@ def apply_theme(root: tk.Tk) -> None:
     )
     style.configure("Treeview.Heading",
         background=C["surface0"],
-        foreground=C["subtext0"],
+        foreground=C["subtext1"],
         relief="flat",
         font=("Helvetica", 9, "bold"),
         padding=(4, 6),
@@ -291,7 +306,7 @@ class RuleDialog(tk.Toplevel):
         outer.pack(fill="both", expand=True)
 
         def field(row, label, widget_factory):
-            ttk.Label(outer, text=label, foreground=C["subtext0"]).grid(
+            ttk.Label(outer, text=label, foreground=C["text"]).grid(
                 row=row, column=0, sticky="w", pady=(0, 8), padx=(0, 16),
             )
             w = widget_factory(outer)
@@ -434,7 +449,7 @@ class PaperboyApp(tk.Tk):
         sf.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         sf.columnconfigure(1, weight=1)
 
-        ttk.Label(sf, text="Watch Directory:", foreground=C["subtext0"]).grid(
+        ttk.Label(sf, text="Watch Directory:", foreground=C["text"]).grid(
             row=0, column=0, sticky="w", pady=(0, 6),
         )
         dir_row = ttk.Frame(sf)
@@ -448,7 +463,7 @@ class PaperboyApp(tk.Tk):
             row=0, column=1,
         )
 
-        ttk.Label(sf, text="After Print:", foreground=C["subtext0"]).grid(
+        ttk.Label(sf, text="After Print:", foreground=C["text"]).grid(
             row=1, column=0, sticky="w", pady=(8, 0),
         )
         after_row = ttk.Frame(sf)
@@ -461,7 +476,7 @@ class PaperboyApp(tk.Tk):
                 command=self._on_after_print_change,
             ).pack(side="left", padx=(0, 12))
 
-        ttk.Label(sf, text="Archive Directory:", foreground=C["subtext0"]).grid(
+        ttk.Label(sf, text="Archive Directory:", foreground=C["text"]).grid(
             row=2, column=0, sticky="w", pady=(8, 0),
         )
         archive_row = ttk.Frame(sf)
