@@ -8,6 +8,10 @@
 
 Paperboy watches a directory for incoming PDFs and automatically routes them to the correct printer based on filename, page size, and color content — no manual printer selection needed.
 
+<p align="center">
+  <img src="UI-screenshot.png" alt="Paperboy configurator screenshot">
+</p>
+
 ## Use Case
 
 Perfect for e-commerce workflows (Shopify, Etsy, eBay, etc.) where you need:
