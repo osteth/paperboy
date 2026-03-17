@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="AppIcon.png" width="150" alt="Paperboy">
+</p>
+
 # Paperboy
 
 **Automatic PDF Print Router for Linux**
