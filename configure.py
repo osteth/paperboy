@@ -410,6 +410,14 @@ class PaperboyApp(tk.Tk):
 
         apply_theme(self)
 
+        icon_path = Path.home() / ".local" / "share" / "paperboy" / "AppIcon.png"
+        if icon_path.exists():
+            try:
+                self._icon = tk.PhotoImage(file=str(icon_path))
+                self.iconphoto(True, self._icon)
+            except Exception:
+                pass
+
         self.config_data = load_config()
         self.printers    = get_printers()
 

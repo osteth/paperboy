@@ -54,7 +54,8 @@ mkdir -p "$INSTALL_DIR" "$BIN_DIR" "$SYSTEMD_DIR"
 
 # Core files
 echo "==> Installing Paperboy files..."
-cp daemon.py "$INSTALL_DIR/daemon.py"
+cp daemon.py    "$INSTALL_DIR/daemon.py"
+cp AppIcon.png  "$INSTALL_DIR/AppIcon.png"
 
 # GUI files (full only)
 if ! $LITE; then
@@ -65,6 +66,18 @@ if ! $LITE; then
 python3 "$HOME/.local/share/paperboy/configure.py" "$@"
 EOF
     chmod +x "$BIN_DIR/paperboy-configure"
+
+    # Install icon into hicolor theme
+    ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/apps"
+    mkdir -p "$ICON_DIR"
+    cp AppIcon.png "$ICON_DIR/paperboy.png"
+    gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+
+    # Register .desktop entry
+    DESKTOP_DIR="$HOME/.local/share/applications"
+    mkdir -p "$DESKTOP_DIR"
+    cp paperboy.desktop "$DESKTOP_DIR/paperboy.desktop"
+    update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
 fi
 
 # Systemd user service
