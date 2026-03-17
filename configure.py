@@ -641,12 +641,14 @@ class PaperboyApp(tk.Tk):
     # --- Settings actions --------------------------------------------------
 
     def _browse_dir(self):
-        d = filedialog.askdirectory(initialdir=self.watch_dir_var.get())
+        initial = Path(self.watch_dir_var.get()).expanduser()
+        d = filedialog.askdirectory(initialdir=str(initial if initial.exists() else Path.home()))
         if d:
             self.watch_dir_var.set(d)
 
     def _browse_archive_dir(self):
-        d = filedialog.askdirectory(initialdir=self.archive_dir_var.get())
+        initial = Path(self.archive_dir_var.get()).expanduser()
+        d = filedialog.askdirectory(initialdir=str(initial if initial.exists() else Path.home()))
         if d:
             self.archive_dir_var.set(d)
 
