@@ -138,6 +138,31 @@ def notify(title: str, body: str) -> None:
         pass
 
 
+def _handle_after_print(path: Path, config: dict) -> None:
+    action = config.get("after_print", "delete" if config.get("delete_after_print", True) else "keep")
+    if action == "delete":
+        path.unlink()
+        log.info("  Deleted: %s", path.name)
+    elif action == "archive":
+        archive_dir = Path(config.get("archive_dir", "")).expanduser()
+        if not archive_dir.is_dir():
+            try:
+                archive_dir.mkdir(parents=True)
+            except Exception as e:
+                log.error("  Could not create archive dir %s: %s", archive_dir, e)
+                return
+        dest = archive_dir / path.name
+        # Avoid clobbering existing files
+        if dest.exists():
+            stem, suffix = path.stem, path.suffix
+            i = 1
+            while dest.exists():
+                dest = archive_dir / f"{stem}_{i}{suffix}"
+                i += 1
+        path.rename(dest)
+        log.info("  Archived to: %s", dest)
+
+
 def print_pdf(path: Path, printer: str) -> bool:
     result = subprocess.run(
         ["lp", "-d", printer, str(path)],
@@ -188,8 +213,7 @@ class PDFHandler(FileSystemEventHandler):
 
             if print_pdf(path, printer):
                 log.info("  Sent successfully")
-                if self.config.get("delete_after_print", True):
-                    path.unlink()
+                _handle_after_print(path, self.config)
                 notify("Paperboy: Printed", f"{color_str} -> {printer}")
             else:
                 log.error("  Print failed — file kept for inspection")

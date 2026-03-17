@@ -448,11 +448,32 @@ class PaperboyApp(tk.Tk):
             row=0, column=1,
         )
 
-        self.delete_var = tk.BooleanVar()
-        ttk.Checkbutton(
-            sf, text="Delete PDF after successful print",
-            variable=self.delete_var,
-        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(4, 0))
+        ttk.Label(sf, text="After Print:", foreground=C["subtext0"]).grid(
+            row=1, column=0, sticky="w", pady=(8, 0),
+        )
+        after_row = ttk.Frame(sf)
+        after_row.grid(row=1, column=1, sticky="w", pady=(8, 0), padx=(8, 0))
+        self.after_print_var = tk.StringVar()
+        for value, label in [("keep", "Keep"), ("delete", "Delete"), ("archive", "Archive")]:
+            ttk.Radiobutton(
+                after_row, text=label,
+                variable=self.after_print_var, value=value,
+                command=self._on_after_print_change,
+            ).pack(side="left", padx=(0, 12))
+
+        ttk.Label(sf, text="Archive Directory:", foreground=C["subtext0"]).grid(
+            row=2, column=0, sticky="w", pady=(8, 0),
+        )
+        archive_row = ttk.Frame(sf)
+        archive_row.grid(row=2, column=1, sticky="ew", pady=(8, 0))
+        archive_row.columnconfigure(0, weight=1)
+        self.archive_dir_var = tk.StringVar()
+        self.archive_dir_entry = ttk.Entry(archive_row, textvariable=self.archive_dir_var)
+        self.archive_dir_entry.grid(row=0, column=0, sticky="ew", padx=(8, 6))
+        self.archive_browse_btn = ttk.Button(
+            archive_row, text="Browse", command=self._browse_archive_dir,
+        )
+        self.archive_browse_btn.grid(row=0, column=1)
 
         # Rules
         rf = ttk.LabelFrame(main, text="Routing Rules", padding=(12, 8))
@@ -528,7 +549,17 @@ class PaperboyApp(tk.Tk):
 
     def _populate_ui(self):
         self.watch_dir_var.set(self.config_data.get("watch_dir", ""))
-        self.delete_var.set(self.config_data.get("delete_after_print", True))
+
+        # Migrate legacy delete_after_print flag
+        if "after_print" not in self.config_data:
+            legacy = self.config_data.get("delete_after_print", True)
+            self.config_data["after_print"] = "delete" if legacy else "keep"
+        self.after_print_var.set(self.config_data.get("after_print", "delete"))
+
+        default_archive = str(Path.home() / "Documents" / "PrintArchive")
+        self.archive_dir_var.set(self.config_data.get("archive_dir", default_archive))
+
+        self._on_after_print_change()
         self._refresh_tree()
 
     def _refresh_tree(self):
@@ -599,9 +630,23 @@ class PaperboyApp(tk.Tk):
         if d:
             self.watch_dir_var.set(d)
 
+    def _browse_archive_dir(self):
+        d = filedialog.askdirectory(initialdir=self.archive_dir_var.get())
+        if d:
+            self.archive_dir_var.set(d)
+
+    def _on_after_print_change(self):
+        archiving = self.after_print_var.get() == "archive"
+        state = "normal" if archiving else "disabled"
+        self.archive_dir_entry.configure(state=state)
+        self.archive_browse_btn.configure(state=state)
+
     def _save(self):
-        self.config_data["watch_dir"]          = self.watch_dir_var.get()
-        self.config_data["delete_after_print"] = self.delete_var.get()
+        self.config_data["watch_dir"]   = self.watch_dir_var.get()
+        self.config_data["after_print"] = self.after_print_var.get()
+        self.config_data["archive_dir"] = self.archive_dir_var.get()
+        # Keep legacy key in sync for any external tools
+        self.config_data["delete_after_print"] = (self.after_print_var.get() == "delete")
         save_config(self.config_data)
         messagebox.showinfo(
             "Saved",
