@@ -1,0 +1,14 @@
+[Unit]
+Description=Paperboy - Automatic PDF Print Router
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.local/share/paperboy/daemon.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
