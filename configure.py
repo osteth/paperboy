@@ -318,21 +318,21 @@ class RuleDialog(tk.Toplevel):
         self.name_var = tk.StringVar(value=rule.get("name", "") if rule else "")
         field(0, "Rule Name", lambda p: ttk.Entry(p, textvariable=self.name_var, width=34))
 
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=1, column=0, columnspan=2, sticky="ew", pady=(0, 12),
+        )
+
         # Filename pattern
         self.filename_var = tk.StringVar(
             value=rule.get("filename_pattern", "") if rule else ""
         )
-        field(1, "Filename Pattern",
+        field(2, "Filename Pattern",
               lambda p: ttk.Entry(p, textvariable=self.filename_var, width=34))
         ttk.Label(
             outer,
             text="Glob pattern, e.g. *shipping*  |  leave blank to match any filename",
             style="Dim.TLabel",
-        ).grid(row=2, column=1, sticky="w", pady=(0, 10))
-
-        ttk.Separator(outer, orient="horizontal").grid(
-            row=3, column=0, columnspan=2, sticky="ew", pady=(0, 12),
-        )
+        ).grid(row=3, column=1, sticky="w", pady=(0, 10))
 
         # Paper size
         self.size_var = tk.StringVar()
