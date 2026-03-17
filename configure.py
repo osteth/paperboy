@@ -118,40 +118,48 @@ class RuleDialog(tk.Toplevel):
         self.name_var = tk.StringVar(value=rule.get("name", "") if rule else "")
         tk.Entry(self, textvariable=self.name_var, width=32).grid(row=0, column=1, **pad)
 
-        tk.Label(self, text="Paper Size:").grid(row=1, column=0, sticky="w", **pad)
+        tk.Label(self, text="Filename Pattern:").grid(row=1, column=0, sticky="w", **pad)
+        self.filename_var = tk.StringVar(value=rule.get("filename_pattern", "") if rule else "")
+        tk.Entry(self, textvariable=self.filename_var, width=32).grid(row=1, column=1, **pad)
+        tk.Label(
+            self, text='e.g. *shipping*, invoice_*.pdf  (leave blank to match any filename)',
+            fg="#888888", font=("Helvetica", 8),
+        ).grid(row=2, column=1, sticky="w", padx=12, pady=(0, 4))
+
+        tk.Label(self, text="Paper Size:").grid(row=3, column=0, sticky="w", **pad)
         self.size_var = tk.StringVar()
         size_cb = ttk.Combobox(
             self, textvariable=self.size_var,
             values=list(PAPER_SIZES.keys()), state="readonly", width=30,
         )
-        size_cb.grid(row=1, column=1, **pad)
+        size_cb.grid(row=3, column=1, **pad)
         self.size_var.set(
             size_label(rule.get("width_pt"), rule.get("height_pt")) if rule else "4x6 Label"
         )
 
-        tk.Label(self, text="Color:").grid(row=2, column=0, sticky="w", **pad)
+        tk.Label(self, text="Color:").grid(row=4, column=0, sticky="w", **pad)
         self.color_var = tk.StringVar()
         color_cb = ttk.Combobox(
             self, textvariable=self.color_var,
             values=list(COLOR_OPTIONS.keys()), state="readonly", width=30,
         )
-        color_cb.grid(row=2, column=1, **pad)
+        color_cb.grid(row=4, column=1, **pad)
         self.color_var.set(color_label(rule.get("color", "any")) if rule else "Any")
 
-        tk.Label(self, text="Printer:").grid(row=3, column=0, sticky="w", **pad)
+        tk.Label(self, text="Printer:").grid(row=5, column=0, sticky="w", **pad)
         self.printer_var = tk.StringVar()
         printer_cb = ttk.Combobox(
             self, textvariable=self.printer_var,
             values=printers, state="readonly", width=30,
         )
-        printer_cb.grid(row=3, column=1, **pad)
+        printer_cb.grid(row=5, column=1, **pad)
         if rule and rule.get("printer") in printers:
             self.printer_var.set(rule["printer"])
         elif printers:
             self.printer_var.set(printers[0])
 
         btn_frame = tk.Frame(self)
-        btn_frame.grid(row=4, column=0, columnspan=2, pady=12)
+        btn_frame.grid(row=6, column=0, columnspan=2, pady=12)
         tk.Button(btn_frame, text="Save",   command=self._save,   width=12).pack(side="left", padx=5)
         tk.Button(btn_frame, text="Cancel", command=self.destroy, width=12).pack(side="left", padx=5)
 
@@ -168,11 +176,12 @@ class RuleDialog(tk.Toplevel):
         printer   = self.printer_var.get()
 
         self.result = {
-            "name":     self.name_var.get() or f"{size_name} -> {printer}",
-            "width_pt": w,
-            "height_pt": h,
-            "color":    color,
-            "printer":  printer,
+            "name":             self.name_var.get() or f"{size_name} -> {printer}",
+            "filename_pattern": self.filename_var.get().strip() or None,
+            "width_pt":         w,
+            "height_pt":        h,
+            "color":            color,
+            "printer":          printer,
         }
         self.destroy()
 
@@ -230,16 +239,18 @@ class PaperboyApp(tk.Tk):
         rf = tk.LabelFrame(self, text="Routing Rules", padx=10, pady=8)
         rf.pack(fill="both", expand=True, padx=12, pady=4)
 
-        cols = ("name", "size", "color", "printer")
+        cols = ("name", "filename", "size", "color", "printer")
         self.tree = ttk.Treeview(rf, columns=cols, show="headings", height=8)
-        self.tree.heading("name",    text="Rule Name")
-        self.tree.heading("size",    text="Paper Size")
-        self.tree.heading("color",   text="Color")
-        self.tree.heading("printer", text="Printer")
-        self.tree.column("name",    width=190)
-        self.tree.column("size",    width=140)
-        self.tree.column("color",   width=120)
-        self.tree.column("printer", width=210)
+        self.tree.heading("name",     text="Rule Name")
+        self.tree.heading("filename", text="Filename Pattern")
+        self.tree.heading("size",     text="Paper Size")
+        self.tree.heading("color",    text="Color")
+        self.tree.heading("printer",  text="Printer")
+        self.tree.column("name",     width=160)
+        self.tree.column("filename", width=130)
+        self.tree.column("size",     width=120)
+        self.tree.column("color",    width=90)
+        self.tree.column("printer",  width=180)
         self.tree.pack(side="left", fill="both", expand=True)
 
         sb = ttk.Scrollbar(rf, orient="vertical", command=self.tree.yview)
@@ -310,6 +321,7 @@ class PaperboyApp(tk.Tk):
         for rule in self.config_data.get("rules", []):
             self.tree.insert("", "end", values=(
                 rule.get("name", "Unnamed"),
+                rule.get("filename_pattern") or "*",
                 size_label(rule.get("width_pt"), rule.get("height_pt")),
                 color_label(rule.get("color", "any")),
                 rule.get("printer", ""),

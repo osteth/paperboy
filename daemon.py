@@ -5,6 +5,7 @@ Watches a directory for PDFs and routes them to the correct printer
 based on page size and color content as defined in config.json.
 """
 
+import fnmatch
 import json
 import logging
 import subprocess
@@ -93,11 +94,21 @@ def color_matches(color_detected: bool | None, rule_color: str) -> bool:
     return True
 
 
-def match_rule(w: float, h: float, color_detected: bool | None, rules: list) -> dict | None:
+def filename_matches(filename: str, pattern: str | None) -> bool:
+    if not pattern:
+        return True
+    return fnmatch.fnmatch(filename.lower(), pattern.lower())
+
+
+def match_rule(w: float, h: float, color_detected: bool | None, filename: str, rules: list) -> dict | None:
     for rule in rules:
-        if sizes_match(w, h, rule.get("width_pt"), rule.get("height_pt")):
-            if color_matches(color_detected, rule.get("color", "any")):
-                return rule
+        if not filename_matches(filename, rule.get("filename_pattern")):
+            continue
+        if not sizes_match(w, h, rule.get("width_pt"), rule.get("height_pt")):
+            continue
+        if not color_matches(color_detected, rule.get("color", "any")):
+            continue
+        return rule
     return None
 
 
@@ -165,14 +176,15 @@ class PDFHandler(FileSystemEventHandler):
                 w, h, w / 72, h / 72, color_str,
             )
 
-            rule = match_rule(w, h, color, self.config.get("rules", []))
+            rule = match_rule(w, h, color, path.name, self.config.get("rules", []))
             if rule is None:
                 log.warning("  No matching rule — file left in place")
                 notify("Paperboy: No Rule Matched", path.name)
                 return
 
-            printer = rule["printer"]
-            log.info("  Rule: '%s'  ->  %s", rule.get("name", "unnamed"), printer)
+            printer  = rule["printer"]
+            pat      = rule.get("filename_pattern") or "*"
+            log.info("  Rule: '%s' (filename: %s)  ->  %s", rule.get("name", "unnamed"), pat, printer)
 
             if print_pdf(path, printer):
                 log.info("  Sent successfully")
