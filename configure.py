@@ -106,8 +106,8 @@ def apply_theme(root: tk.Tk) -> None:
         padding=(8, 5),
     )
     style.map("TButton",
-        background=[("active", C["surface1"]), ("pressed", C["surface2"])],
-        foreground=[("active", C["text"]), ("pressed", C["text"])],
+        background=[("disabled", C["surface0"]), ("active", C["surface1"]), ("pressed", C["surface2"])],
+        foreground=[("disabled", C["overlay0"]), ("active", C["text"]),    ("pressed", C["text"])],
         bordercolor=[("active", C["overlay0"])],
     )
 
@@ -654,9 +654,12 @@ class PaperboyApp(tk.Tk):
 
     def _on_after_print_change(self):
         archiving = self.after_print_var.get() == "archive"
-        state = "normal" if archiving else "disabled"
-        self.archive_dir_entry.configure(state=state)
-        self.archive_browse_btn.configure(state=state)
+        if archiving:
+            self.archive_dir_entry.state(["!disabled"])
+            self.archive_browse_btn.state(["!disabled"])
+        else:
+            self.archive_dir_entry.state(["disabled"])
+            self.archive_browse_btn.state(["disabled"])
 
     def _save(self):
         self.config_data["watch_dir"]   = self.watch_dir_var.get()
