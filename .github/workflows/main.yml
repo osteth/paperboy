@@ -1,0 +1,38 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    name: Syntax & Style Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check Python syntax (daemon)
+        run: python3 -m py_compile daemon.py && echo "daemon.py OK"
+
+      - name: Check Python syntax (configure)
+        run: python3 -m py_compile configure.py && echo "configure.py OK"
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint install.sh
+        run: shellcheck install.sh
+
+      - name: Lint uninstall.sh
+        run: shellcheck uninstall.sh
+
+      - name: Validate .desktop file
+        run: |
+          sudo apt-get install -y desktop-file-utils
+          desktop-file-validate paperboy.desktop
