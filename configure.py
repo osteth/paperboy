@@ -677,10 +677,18 @@ class PaperboyApp(tk.Tk):
         # Keep legacy key in sync for any external tools
         self.config_data["delete_after_print"] = (self.after_print_var.get() == "delete")
         save_config(self.config_data)
-        messagebox.showinfo(
-            "Saved",
-            "Configuration saved.\nRestart the daemon to apply changes.",
+
+        # Auto-restart daemon if it's running so changes take effect immediately
+        status = subprocess.run(
+            ["systemctl", "--user", "is-active", "paperboy"],
+            capture_output=True, text=True,
         )
+        if status.stdout.strip() == "active":
+            subprocess.run(["systemctl", "--user", "restart", "paperboy"], capture_output=True)
+            self.after(600, self._poll_daemon_status)
+            messagebox.showinfo("Saved", "Configuration saved and daemon restarted.")
+        else:
+            messagebox.showinfo("Saved", "Configuration saved.")
 
     # --- Daemon controls ---------------------------------------------------
 
