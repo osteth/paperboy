@@ -45,7 +45,7 @@ All dependencies are installed automatically by `install.sh`.
 ## Installation
 
 ```bash
-git clone <repo-url> paperboy
+git clone https://github.com/osteth/paperboy.git
 cd paperboy
 chmod +x install.sh
 ./install.sh
