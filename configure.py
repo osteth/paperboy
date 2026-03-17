@@ -32,6 +32,180 @@ COLOR_OPTIONS = {
 
 TERMINALS = ["gnome-terminal", "xterm", "konsole", "xfce4-terminal", "lxterminal"]
 
+# Catppuccin Mocha
+C = {
+    "base":     "#1e1e2e",
+    "mantle":   "#181825",
+    "crust":    "#11111b",
+    "surface0": "#313244",
+    "surface1": "#45475a",
+    "surface2": "#585b70",
+    "overlay0": "#6c7086",
+    "overlay1": "#7f849c",
+    "text":     "#cdd6f4",
+    "subtext0": "#a6adc8",
+    "subtext1": "#bac2de",
+    "blue":     "#89b4fa",
+    "green":    "#a6e3a1",
+    "red":      "#f38ba8",
+    "yellow":   "#f9e2af",
+}
+
+
+# ---------------------------------------------------------------------------
+# Theme
+# ---------------------------------------------------------------------------
+
+def apply_theme(root: tk.Tk) -> None:
+    style = ttk.Style(root)
+    style.theme_use("clam")
+
+    root.configure(bg=C["base"])
+
+    # Combobox dropdown colours (Tk Listbox, not ttk)
+    root.option_add("*TCombobox*Listbox.background",       C["surface0"])
+    root.option_add("*TCombobox*Listbox.foreground",       C["text"])
+    root.option_add("*TCombobox*Listbox.selectBackground", C["blue"])
+    root.option_add("*TCombobox*Listbox.selectForeground", C["crust"])
+
+    style.configure(".",
+        background=C["base"],
+        foreground=C["text"],
+        fieldbackground=C["mantle"],
+        bordercolor=C["surface1"],
+        darkcolor=C["surface0"],
+        lightcolor=C["surface0"],
+        troughcolor=C["surface0"],
+        selectbackground=C["blue"],
+        selectforeground=C["crust"],
+        insertcolor=C["text"],
+        relief="flat",
+        font=("Helvetica", 10),
+    )
+
+    style.configure("TFrame",      background=C["base"])
+    style.configure("TLabel",      background=C["base"], foreground=C["text"])
+    style.configure("TSeparator",  background=C["surface1"])
+
+    style.configure("TLabelframe",
+        background=C["base"],
+        bordercolor=C["surface1"],
+        relief="groove",
+    )
+    style.configure("TLabelframe.Label",
+        background=C["base"],
+        foreground=C["subtext0"],
+        font=("Helvetica", 9, "bold"),
+    )
+
+    style.configure("TButton",
+        background=C["surface0"],
+        foreground=C["text"],
+        bordercolor=C["surface1"],
+        focuscolor=C["surface0"],
+        padding=(8, 5),
+    )
+    style.map("TButton",
+        background=[("active", C["surface1"]), ("pressed", C["surface2"])],
+        bordercolor=[("active", C["overlay0"])],
+    )
+
+    style.configure("Accent.TButton",
+        background=C["blue"],
+        foreground=C["crust"],
+        bordercolor=C["blue"],
+        font=("Helvetica", 10, "bold"),
+        padding=(14, 8),
+    )
+    style.map("Accent.TButton",
+        background=[("active", C["subtext1"]), ("pressed", C["overlay1"])],
+    )
+
+    style.configure("TEntry",
+        fieldbackground=C["mantle"],
+        foreground=C["text"],
+        bordercolor=C["surface1"],
+        insertcolor=C["text"],
+        padding=6,
+    )
+    style.map("TEntry",
+        fieldbackground=[("focus", C["surface0"])],
+        bordercolor=[("focus", C["blue"])],
+    )
+
+    style.configure("TCombobox",
+        fieldbackground=C["mantle"],
+        background=C["surface0"],
+        foreground=C["text"],
+        bordercolor=C["surface1"],
+        arrowcolor=C["subtext0"],
+        padding=5,
+    )
+    style.map("TCombobox",
+        fieldbackground=[("focus", C["surface0"]), ("readonly", C["mantle"])],
+        bordercolor=[("focus", C["blue"])],
+        arrowcolor=[("hover", C["text"])],
+    )
+
+    style.configure("TCheckbutton",
+        background=C["base"],
+        foreground=C["text"],
+        focuscolor=C["base"],
+        indicatorcolor=C["surface0"],
+    )
+    style.map("TCheckbutton",
+        indicatorcolor=[("selected", C["blue"]), ("active", C["surface1"])],
+        background=[("active", C["base"])],
+    )
+
+    style.configure("Treeview",
+        background=C["mantle"],
+        foreground=C["text"],
+        fieldbackground=C["mantle"],
+        bordercolor=C["surface1"],
+        rowheight=30,
+    )
+    style.configure("Treeview.Heading",
+        background=C["surface0"],
+        foreground=C["subtext0"],
+        relief="flat",
+        font=("Helvetica", 9, "bold"),
+        padding=(4, 6),
+    )
+    style.map("Treeview",
+        background=[("selected", C["surface1"])],
+        foreground=[("selected", C["text"])],
+    )
+    style.map("Treeview.Heading",
+        background=[("active", C["surface1"])],
+        relief=[("active", "flat")],
+    )
+
+    style.configure("TScrollbar",
+        background=C["surface0"],
+        troughcolor=C["mantle"],
+        bordercolor=C["mantle"],
+        arrowcolor=C["overlay0"],
+        gripcount=0,
+    )
+    style.map("TScrollbar",
+        background=[("active", C["surface1"])],
+    )
+
+    # Named label styles for dynamic status colours
+    style.configure("Running.TLabel",
+        background=C["base"], foreground=C["green"], font=("Helvetica", 10, "bold"),
+    )
+    style.configure("Stopped.TLabel",
+        background=C["base"], foreground=C["red"], font=("Helvetica", 10, "bold"),
+    )
+    style.configure("Dim.TLabel",
+        background=C["base"], foreground=C["overlay0"], font=("Helvetica", 8),
+    )
+    style.configure("Hint.TLabel",
+        background=C["surface0"], foreground=C["overlay0"], font=("Helvetica", 8),
+    )
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -110,58 +284,81 @@ class RuleDialog(tk.Toplevel):
 
         self.title("Edit Rule" if rule else "Add Rule")
         self.resizable(False, False)
+        self.configure(bg=C["base"])
         self.grab_set()
 
-        pad = {"padx": 12, "pady": 6}
+        outer = ttk.Frame(self, padding=20)
+        outer.pack(fill="both", expand=True)
 
-        tk.Label(self, text="Rule Name:").grid(row=0, column=0, sticky="w", **pad)
+        def field(row, label, widget_factory):
+            ttk.Label(outer, text=label, foreground=C["subtext0"]).grid(
+                row=row, column=0, sticky="w", pady=(0, 8), padx=(0, 16),
+            )
+            w = widget_factory(outer)
+            w.grid(row=row, column=1, sticky="ew", pady=(0, 8))
+            return w
+
+        # Rule name
         self.name_var = tk.StringVar(value=rule.get("name", "") if rule else "")
-        tk.Entry(self, textvariable=self.name_var, width=32).grid(row=0, column=1, **pad)
+        field(0, "Rule Name", lambda p: ttk.Entry(p, textvariable=self.name_var, width=34))
 
-        tk.Label(self, text="Filename Pattern:").grid(row=1, column=0, sticky="w", **pad)
-        self.filename_var = tk.StringVar(value=rule.get("filename_pattern", "") if rule else "")
-        tk.Entry(self, textvariable=self.filename_var, width=32).grid(row=1, column=1, **pad)
-        tk.Label(
-            self, text='e.g. *shipping*, invoice_*.pdf  (leave blank to match any filename)',
-            fg="#888888", font=("Helvetica", 8),
-        ).grid(row=2, column=1, sticky="w", padx=12, pady=(0, 4))
+        # Filename pattern
+        self.filename_var = tk.StringVar(
+            value=rule.get("filename_pattern", "") if rule else ""
+        )
+        field(1, "Filename Pattern",
+              lambda p: ttk.Entry(p, textvariable=self.filename_var, width=34))
+        ttk.Label(
+            outer,
+            text="Glob pattern, e.g. *shipping*  |  leave blank to match any filename",
+            style="Dim.TLabel",
+        ).grid(row=2, column=1, sticky="w", pady=(0, 10))
 
-        tk.Label(self, text="Paper Size:").grid(row=3, column=0, sticky="w", **pad)
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=3, column=0, columnspan=2, sticky="ew", pady=(0, 12),
+        )
+
+        # Paper size
         self.size_var = tk.StringVar()
         size_cb = ttk.Combobox(
-            self, textvariable=self.size_var,
-            values=list(PAPER_SIZES.keys()), state="readonly", width=30,
+            outer, textvariable=self.size_var,
+            values=list(PAPER_SIZES.keys()), state="readonly", width=32,
         )
-        size_cb.grid(row=3, column=1, **pad)
+        field(4, "Paper Size", lambda p: size_cb)
         self.size_var.set(
             size_label(rule.get("width_pt"), rule.get("height_pt")) if rule else "4x6 Label"
         )
 
-        tk.Label(self, text="Color:").grid(row=4, column=0, sticky="w", **pad)
+        # Color
         self.color_var = tk.StringVar()
         color_cb = ttk.Combobox(
-            self, textvariable=self.color_var,
-            values=list(COLOR_OPTIONS.keys()), state="readonly", width=30,
+            outer, textvariable=self.color_var,
+            values=list(COLOR_OPTIONS.keys()), state="readonly", width=32,
         )
-        color_cb.grid(row=4, column=1, **pad)
+        field(5, "Color", lambda p: color_cb)
         self.color_var.set(color_label(rule.get("color", "any")) if rule else "Any")
 
-        tk.Label(self, text="Printer:").grid(row=5, column=0, sticky="w", **pad)
+        # Printer
         self.printer_var = tk.StringVar()
         printer_cb = ttk.Combobox(
-            self, textvariable=self.printer_var,
-            values=printers, state="readonly", width=30,
+            outer, textvariable=self.printer_var,
+            values=printers, state="readonly", width=32,
         )
-        printer_cb.grid(row=5, column=1, **pad)
+        field(6, "Printer", lambda p: printer_cb)
         if rule and rule.get("printer") in printers:
             self.printer_var.set(rule["printer"])
         elif printers:
             self.printer_var.set(printers[0])
 
-        btn_frame = tk.Frame(self)
-        btn_frame.grid(row=6, column=0, columnspan=2, pady=12)
-        tk.Button(btn_frame, text="Save",   command=self._save,   width=12).pack(side="left", padx=5)
-        tk.Button(btn_frame, text="Cancel", command=self.destroy, width=12).pack(side="left", padx=5)
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=7, column=0, columnspan=2, sticky="ew", pady=(4, 12),
+        )
+
+        btn_row = ttk.Frame(outer)
+        btn_row.grid(row=8, column=0, columnspan=2, sticky="e")
+        ttk.Button(btn_row, text="Cancel", command=self.destroy).pack(side="left", padx=(0, 8))
+        ttk.Button(btn_row, text="Save", style="Accent.TButton",
+                   command=self._save).pack(side="left")
 
         self.wait_window()
 
@@ -172,16 +369,14 @@ class RuleDialog(tk.Toplevel):
 
         size_name = self.size_var.get()
         w, h      = PAPER_SIZES.get(size_name, (None, None))
-        color     = COLOR_OPTIONS.get(self.color_var.get(), "any")
-        printer   = self.printer_var.get()
 
         self.result = {
-            "name":             self.name_var.get() or f"{size_name} -> {printer}",
+            "name":             self.name_var.get() or f"{size_name} -> {self.printer_var.get()}",
             "filename_pattern": self.filename_var.get().strip() or None,
             "width_pt":         w,
             "height_pt":        h,
-            "color":            color,
-            "printer":          printer,
+            "color":            COLOR_OPTIONS.get(self.color_var.get(), "any"),
+            "printer":          self.printer_var.get(),
         }
         self.destroy()
 
@@ -194,7 +389,10 @@ class PaperboyApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Paperboy  —  Print Router")
-        self.resizable(False, False)
+        self.resizable(True, True)
+        self.minsize(740, 580)
+
+        apply_theme(self)
 
         self.config_data = load_config()
         self.printers    = get_printers()
@@ -207,37 +405,61 @@ class PaperboyApp(tk.Tk):
 
     def _build_ui(self):
         # Header
-        header = tk.Frame(self, bg="#1e1e2e")
+        header = tk.Frame(self, bg=C["mantle"])
         header.pack(fill="x")
         tk.Label(
-            header, text="Paperboy", font=("Helvetica", 20, "bold"),
-            bg="#1e1e2e", fg="#cdd6f4",
-        ).pack(pady=(12, 2))
+            header, text="Paperboy",
+            font=("Helvetica", 22, "bold"),
+            bg=C["mantle"], fg=C["text"],
+        ).pack(side="left", padx=20, pady=14)
         tk.Label(
             header, text="Automatic PDF Print Router",
-            bg="#1e1e2e", fg="#6c7086", font=("Helvetica", 10),
-        ).pack(pady=(0, 12))
+            font=("Helvetica", 10),
+            bg=C["mantle"], fg=C["overlay0"],
+        ).pack(side="left", pady=14)
+
+        # Status pill on the right side of header
+        self.status_label = ttk.Label(header, text="checking...", style="Dim.TLabel")
+        self.status_label.pack(side="right", padx=20, pady=14)
+        ttk.Label(header, text="Daemon:", style="Dim.TLabel").pack(
+            side="right", pady=14,
+        )
+
+        main = ttk.Frame(self, padding=(16, 12))
+        main.pack(fill="both", expand=True)
+        main.columnconfigure(0, weight=1)
 
         # Settings
-        sf = tk.LabelFrame(self, text="Settings", padx=10, pady=8)
-        sf.pack(fill="x", padx=12, pady=(10, 4))
+        sf = ttk.LabelFrame(main, text="Settings", padding=(12, 8))
+        sf.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        sf.columnconfigure(1, weight=1)
 
-        tk.Label(sf, text="Watch Directory:").grid(row=0, column=0, sticky="w")
-        self.watch_dir_var = tk.StringVar()
-        tk.Entry(sf, textvariable=self.watch_dir_var, width=42).grid(
-            row=0, column=1, padx=6,
+        ttk.Label(sf, text="Watch Directory:", foreground=C["subtext0"]).grid(
+            row=0, column=0, sticky="w", pady=(0, 6),
         )
-        tk.Button(sf, text="Browse", command=self._browse_dir).grid(row=0, column=2)
+        dir_row = ttk.Frame(sf)
+        dir_row.grid(row=0, column=1, sticky="ew", pady=(0, 6))
+        dir_row.columnconfigure(0, weight=1)
+        self.watch_dir_var = tk.StringVar()
+        ttk.Entry(dir_row, textvariable=self.watch_dir_var).grid(
+            row=0, column=0, sticky="ew", padx=(8, 6),
+        )
+        ttk.Button(dir_row, text="Browse", command=self._browse_dir).grid(
+            row=0, column=1,
+        )
 
         self.delete_var = tk.BooleanVar()
-        tk.Checkbutton(
+        ttk.Checkbutton(
             sf, text="Delete PDF after successful print",
             variable=self.delete_var,
-        ).grid(row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(4, 0))
 
         # Rules
-        rf = tk.LabelFrame(self, text="Routing Rules", padx=10, pady=8)
-        rf.pack(fill="both", expand=True, padx=12, pady=4)
+        rf = ttk.LabelFrame(main, text="Routing Rules", padding=(12, 8))
+        rf.grid(row=1, column=0, sticky="nsew", pady=(0, 8))
+        rf.rowconfigure(0, weight=1)
+        rf.columnconfigure(0, weight=1)
+        main.rowconfigure(1, weight=1)
 
         cols = ("name", "filename", "size", "color", "printer")
         self.tree = ttk.Treeview(rf, columns=cols, show="headings", height=8)
@@ -246,22 +468,21 @@ class PaperboyApp(tk.Tk):
         self.tree.heading("size",     text="Paper Size")
         self.tree.heading("color",    text="Color")
         self.tree.heading("printer",  text="Printer")
-        self.tree.column("name",     width=160)
-        self.tree.column("filename", width=130)
-        self.tree.column("size",     width=120)
-        self.tree.column("color",    width=90)
-        self.tree.column("printer",  width=180)
-        self.tree.pack(side="left", fill="both", expand=True)
+        self.tree.column("name",     width=165, minwidth=100)
+        self.tree.column("filename", width=135, minwidth=80)
+        self.tree.column("size",     width=125, minwidth=80)
+        self.tree.column("color",    width=95,  minwidth=60)
+        self.tree.column("printer",  width=185, minwidth=100)
+        self.tree.grid(row=0, column=0, sticky="nsew")
+        self.tree.bind("<Double-1>", lambda _: self._edit_rule())
 
         sb = ttk.Scrollbar(rf, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscroll=sb.set)
-        sb.pack(side="right", fill="y")
+        sb.grid(row=0, column=1, sticky="ns")
 
-        self.tree.bind("<Double-1>", lambda _: self._edit_rule())
-
-        # Rule buttons
-        rbf = tk.Frame(self)
-        rbf.pack(fill="x", padx=12, pady=2)
+        # Rule action buttons
+        rbf = ttk.Frame(main)
+        rbf.grid(row=2, column=0, sticky="w", pady=(2, 0))
         for text, cmd in [
             ("Add",       self._add_rule),
             ("Edit",      self._edit_rule),
@@ -269,45 +490,39 @@ class PaperboyApp(tk.Tk):
             ("Move Up",   self._move_up),
             ("Move Down", self._move_down),
         ]:
-            tk.Button(rbf, text=text, command=cmd, width=10).pack(side="left", padx=2)
+            ttk.Button(rbf, text=text, command=cmd).pack(side="left", padx=(0, 4))
 
-        tk.Label(
-            self,
+        ttk.Label(
+            main,
             text="Rules are matched top-to-bottom  —  first match wins. "
                  "Put specific rules above defaults.",
-            fg="#888888", font=("Helvetica", 9),
-        ).pack(padx=12, anchor="w", pady=(2, 0))
+            style="Dim.TLabel",
+        ).grid(row=3, column=0, sticky="w", pady=(4, 0))
 
-        # Daemon status
-        df = tk.LabelFrame(self, text="Daemon", padx=10, pady=8)
-        df.pack(fill="x", padx=12, pady=(6, 4))
+        ttk.Separator(main, orient="horizontal").grid(
+            row=4, column=0, sticky="ew", pady=12,
+        )
 
-        status_row = tk.Frame(df)
-        status_row.pack(fill="x")
-        tk.Label(status_row, text="Status:").pack(side="left")
-        self.status_label = tk.Label(status_row, text="checking...", fg="gray")
-        self.status_label.pack(side="left", padx=6)
+        # Daemon controls + save button
+        bottom = ttk.Frame(main)
+        bottom.grid(row=5, column=0, sticky="ew")
+        bottom.columnconfigure(0, weight=1)
 
-        dbf = tk.Frame(df)
-        dbf.pack(fill="x", pady=(6, 0))
+        df = ttk.LabelFrame(bottom, text="Daemon Controls", padding=(12, 8))
+        df.grid(row=0, column=0, sticky="w")
         for text, cmd in [
             ("Start",    self._start),
             ("Stop",     self._stop),
             ("Restart",  self._restart),
             ("View Log", self._view_log),
         ]:
-            tk.Button(dbf, text=text, command=cmd, width=10).pack(side="left", padx=2)
+            ttk.Button(df, text=text, command=cmd).pack(side="left", padx=(0, 4))
 
-        # Save button
-        bf = tk.Frame(self)
-        bf.pack(fill="x", padx=12, pady=10)
-        tk.Button(
-            bf, text="Save Configuration",
+        ttk.Button(
+            bottom, text="Save Configuration",
+            style="Accent.TButton",
             command=self._save,
-            bg="#40a02b", fg="white",
-            activebackground="#2d7a1f",
-            width=22, height=2,
-        ).pack(side="right")
+        ).grid(row=0, column=1, sticky="e")
 
     # --- UI population & tree refresh --------------------------------------
 
@@ -399,18 +614,14 @@ class PaperboyApp(tk.Tk):
         subprocess.run(["systemctl", "--user"] + list(args), capture_output=True)
         self.after(600, self._poll_daemon_status)
 
-    def _start(self):
-        self._systemctl("start", "paperboy")
-
-    def _stop(self):
-        self._systemctl("stop", "paperboy")
-
-    def _restart(self):
-        self._systemctl("restart", "paperboy")
+    def _start(self):   self._systemctl("start",   "paperboy")
+    def _stop(self):    self._systemctl("stop",    "paperboy")
+    def _restart(self): self._systemctl("restart", "paperboy")
 
     def _view_log(self):
-        log_path = Path.home() / ".local" / "share" / "paperboy" / "paperboy.log"
-        open_terminal_tail(log_path)
+        open_terminal_tail(
+            Path.home() / ".local" / "share" / "paperboy" / "paperboy.log"
+        )
 
     def _poll_daemon_status(self):
         result = subprocess.run(
@@ -418,9 +629,9 @@ class PaperboyApp(tk.Tk):
             capture_output=True, text=True,
         )
         if result.stdout.strip() == "active":
-            self.status_label.config(text="Running", fg="#40a02b")
+            self.status_label.configure(text="Running", style="Running.TLabel")
         else:
-            self.status_label.config(text="Stopped", fg="#d20f39")
+            self.status_label.configure(text="Stopped", style="Stopped.TLabel")
         self.after(5000, self._poll_daemon_status)
 
 
