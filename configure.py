@@ -454,7 +454,7 @@ class PaperboyApp(tk.Tk):
         after_row = ttk.Frame(sf)
         after_row.grid(row=1, column=1, sticky="w", pady=(8, 0), padx=(8, 0))
         self.after_print_var = tk.StringVar()
-        for value, label in [("keep", "Keep"), ("delete", "Delete"), ("archive", "Archive")]:
+        for value, label in [("delete", "Delete"), ("archive", "Archive")]:
             ttk.Radiobutton(
                 after_row, text=label,
                 variable=self.after_print_var, value=value,
@@ -552,8 +552,7 @@ class PaperboyApp(tk.Tk):
 
         # Migrate legacy delete_after_print flag
         if "after_print" not in self.config_data:
-            legacy = self.config_data.get("delete_after_print", True)
-            self.config_data["after_print"] = "delete" if legacy else "keep"
+            self.config_data["after_print"] = "delete"
         self.after_print_var.set(self.config_data.get("after_print", "delete"))
 
         default_archive = str(Path.home() / "Documents" / "PrintArchive")

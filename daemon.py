@@ -139,7 +139,7 @@ def notify(title: str, body: str) -> None:
 
 
 def _handle_after_print(path: Path, config: dict) -> None:
-    action = config.get("after_print", "delete" if config.get("delete_after_print", True) else "keep")
+    action = config.get("after_print", "delete")
     if action == "delete":
         path.unlink()
         log.info("  Deleted: %s", path.name)
