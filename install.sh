@@ -8,13 +8,6 @@ SYSTEMD_DIR="$HOME/.config/systemd/user"
 echo "==> Paperboy installer"
 echo ""
 
-# Stop old print-daemon service if it exists
-if systemctl --user is-active --quiet print-daemon 2>/dev/null; then
-    echo "==> Stopping old print-daemon service..."
-    systemctl --user stop print-daemon
-    systemctl --user disable print-daemon
-fi
-
 # Dependencies
 echo "==> Installing system dependencies..."
 sudo apt install -y \
