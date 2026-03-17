@@ -300,6 +300,7 @@ class RuleDialog(tk.Toplevel):
         self.title("Edit Rule" if rule else "Add Rule")
         self.resizable(False, False)
         self.configure(bg=C["base"])
+        self.wait_visibility()
         self.grab_set()
 
         outer = ttk.Frame(self, padding=20)
