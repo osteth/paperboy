@@ -209,16 +209,16 @@ def apply_theme(root: tk.Tk) -> None:
 
     # Named label styles for dynamic status colours
     style.configure("Running.TLabel",
-        background=C["base"], foreground=C["green"], font=("Helvetica", 10, "bold"),
+        background=C["mantle"], foreground=C["green"], font=("Helvetica", 10, "bold"),
     )
     style.configure("Stopped.TLabel",
-        background=C["base"], foreground=C["red"], font=("Helvetica", 10, "bold"),
+        background=C["mantle"], foreground=C["red"],   font=("Helvetica", 10, "bold"),
     )
     style.configure("Dim.TLabel",
-        background=C["base"], foreground=C["overlay0"], font=("Helvetica", 8),
+        background=C["base"], foreground=C["subtext0"], font=("Helvetica", 9),
     )
     style.configure("Hint.TLabel",
-        background=C["surface0"], foreground=C["overlay0"], font=("Helvetica", 8),
+        background=C["surface0"], foreground=C["subtext0"], font=("Helvetica", 9),
     )
 
 
@@ -430,15 +430,16 @@ class PaperboyApp(tk.Tk):
         tk.Label(
             header, text="Automatic PDF Print Router",
             font=("Helvetica", 10),
-            bg=C["mantle"], fg=C["overlay0"],
+            bg=C["mantle"], fg=C["subtext0"],
         ).pack(side="left", pady=14)
 
         # Status pill on the right side of header
         self.status_label = ttk.Label(header, text="checking...", style="Dim.TLabel")
         self.status_label.pack(side="right", padx=20, pady=14)
-        ttk.Label(header, text="Daemon:", style="Dim.TLabel").pack(
-            side="right", pady=14,
-        )
+        tk.Label(
+            header, text="Daemon:",
+            bg=C["mantle"], fg=C["subtext0"], font=("Helvetica", 10),
+        ).pack(side="right", pady=14)
 
         main = ttk.Frame(self, padding=(16, 12))
         main.pack(fill="both", expand=True)
